@@ -28,6 +28,7 @@ SECRET_KEY = 'django-insecure-ub3o$jw@ai=&)c%06a+tb&$db1i*xh*8to=@b4u4*^^1s^(#)4
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+os.environ['DISPLAY'] = ':0'
 
 # SCSS SETTING
 SASS_PROCESSOR_ENABLED = True

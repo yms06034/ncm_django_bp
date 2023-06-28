@@ -50,7 +50,7 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
 
     # def 1
     # Crawling Start
-
+    print("크롤링 시작")
     browser.get("https://nid.naver.com/nidlogin.login")
     browser.implicitly_wait(2)
 
@@ -71,7 +71,7 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
     no_save_btn.click()
 
     time.sleep(1)
-
+    print(f"{CAFENAME} 카페 접속")
     # def 2
     browser.get(f"https://cafe.naver.com/{CAFENAME}")
     time.sleep(2)
