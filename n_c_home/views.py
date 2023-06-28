@@ -28,74 +28,118 @@ def searchInfo(request):
     return render(request, 'searchInfo.html')
 
 def naverCafeInfo(request):
-    try:
-        if request.method == 'POST':
-            naver_id = request.POST['naverid']
-            naver_pw = request.POST['naverpw']
-            nick_name = request.POST['nickname']
-            cafe_name = request.POST['cafename']
-            cafe_B_name = request.POST['cafeBname']
-            keyword = request.POST['keyword']
-            comments = request.POST['comments']
+    # try:
+    #     if request.method == 'POST':
+    #         naver_id = request.POST['naverid']
+    #         naver_pw = request.POST['naverpw']
+    #         nick_name = request.POST['nickname']
+    #         cafe_name = request.POST['cafename']
+    #         cafe_B_name = request.POST['cafeBname']
+    #         keyword = request.POST['keyword']
+    #         comments = request.POST['comments']
             
-            comments_list = []
-            comments_list.append(comments)
-            # NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keyword, COMMENTS
-            final_hrefs = naverCafeCrawling(naver_id, naver_pw, cafe_name, cafe_B_name, nick_name, keyword, comments)
-            context = {
-                'naver_id' : naver_id,
-                'naver_pw' : naver_pw,
-                'nick_name' : nick_name,
-                'cafe_name' : cafe_name,
-                'cafe_B_name' : cafe_B_name,
-                'keyword' : keyword,
-                'comments' : comments_list,
-                'final_hrefs' : final_hrefs,
-            }
-    except NoSuchWindowException:
+    #         comments_list = []
+    #         comments_list.append(comments)
+    #         # NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keyword, COMMENTS
+    #         final_hrefs = naverCafeCrawling(naver_id, naver_pw, cafe_name, cafe_B_name, nick_name, keyword, comments)
+    #         context = {
+    #             'naver_id' : naver_id,
+    #             'naver_pw' : naver_pw,
+    #             'nick_name' : nick_name,
+    #             'cafe_name' : cafe_name,
+    #             'cafe_B_name' : cafe_B_name,
+    #             'keyword' : keyword,
+    #             'comments' : comments_list,
+    #             'final_hrefs' : final_hrefs,
+    #         }
+    # except NoSuchWindowException as n:
+    #     context = {
+    #         'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요",
+    #         'error_code' : n
+    #     }
+    # except urllib.error.HTTPError as p:
+    #     context = {
+    #         'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요",
+    #         'error_code' : n
+    #     }
+    # except WebDriverException as w:
+    #     context = {
+    #         'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요",
+    #         'error_code' : n
+    #     }
+    if request.method == 'POST':
+        naver_id = request.POST['naverid']
+        naver_pw = request.POST['naverpw']
+        nick_name = request.POST['nickname']
+        cafe_name = request.POST['cafename']
+        cafe_B_name = request.POST['cafeBname']
+        keyword = request.POST['keyword']
+        comments = request.POST['comments']
+        
+        comments_list = []
+        comments_list.append(comments)
+        # NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keyword, COMMENTS
+        final_hrefs = naverCafeCrawling(naver_id, naver_pw, cafe_name, cafe_B_name, nick_name, keyword, comments)
         context = {
-            'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요"
-        }
-    except urllib.error.HTTPError as p:
-        context = {
-            'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요"
-        }
-    except WebDriverException as w:
-        context = {
-            'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요"
+            'naver_id' : naver_id,
+            'naver_pw' : naver_pw,
+            'nick_name' : nick_name,
+            'cafe_name' : cafe_name,
+            'cafe_B_name' : cafe_B_name,
+            'keyword' : keyword,
+            'comments' : comments_list,
+            'final_hrefs' : final_hrefs,
         }
         
     return render(request, 'crawling.html', context=context)
 
 
 def naverCafeSearch(request):
-    try:
-        if request.method == 'POST':
-            naver_id = request.POST['s_naverid']
-            naver_pw = request.POST['s_naverpw']
-            cafe_name = request.POST['s_cafename']
-            nick_name = request.POST['s_nickname']
-            keyword = request.POST['s_keyword']
-            comments = request.POST['s_comments']
+    # try:
+    #     if request.method == 'POST':
+    #         naver_id = request.POST['s_naverid']
+    #         naver_pw = request.POST['s_naverpw']
+    #         cafe_name = request.POST['s_cafename']
+    #         nick_name = request.POST['s_nickname']
+    #         keyword = request.POST['s_keyword']
+    #         comments = request.POST['s_comments']
             
-            comments_list = []
-            comments_list.append(comments)
-            # NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COMMENTS
-            final_hrefs = naverCafeSearchCrawling(naver_id, naver_pw, cafe_name, nick_name, keyword, comments)
-            context = {
-                'final_hrefs' : final_hrefs
-            }
-    except NoSuchWindowException:
+    #         comments_list = []
+    #         comments_list.append(comments)
+    #         # NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COMMENTS
+    #         final_hrefs = naverCafeSearchCrawling(naver_id, naver_pw, cafe_name, nick_name, keyword, comments)
+    #         context = {
+    #             'final_hrefs' : final_hrefs
+    #         }
+    # except NoSuchWindowException as n:
+    #     context = {
+    #         'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요",
+    #         'error_code' : n
+    #     }
+    # except urllib.error.HTTPError as p:
+    #     context = {
+    #         'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요",
+    #         'error_code' : p
+    #     }
+    # except WebDriverException as w:
+    #     context = {
+    #         'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요",
+    #         'error_code' : w
+    #     }
+    if request.method == 'POST':
+        naver_id = request.POST['s_naverid']
+        naver_pw = request.POST['s_naverpw']
+        cafe_name = request.POST['s_cafename']
+        nick_name = request.POST['s_nickname']
+        keyword = request.POST['s_keyword']
+        comments = request.POST['s_comments']
+        
+        comments_list = []
+        comments_list.append(comments)
+        # NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COMMENTS
+        final_hrefs = naverCafeSearchCrawling(naver_id, naver_pw, cafe_name, nick_name, keyword, comments)
         context = {
-            'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요"
+            'final_hrefs' : final_hrefs
         }
-    except urllib.error.HTTPError as p:
-        context = {
-            'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요"
-        }
-    except WebDriverException as w:
-        context = {
-            'error_msg' : "크롤링에 실패하였습니다. 다시 시도해주세요"
-        }
-    
+
     return render(request, 'crawling.html', context=context)
