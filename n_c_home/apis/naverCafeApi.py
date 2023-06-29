@@ -67,8 +67,8 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
     input_pw.send_keys("\n")
 
     # Not needed when it's headless
-    no_save_btn = find_id('new.dontsave')
-    no_save_btn.click()
+    # no_save_btn = find_id('new.dontsave')
+    # no_save_btn.click()
 
     time.sleep(1)
     print(f"{CAFENAME} 카페 접속")

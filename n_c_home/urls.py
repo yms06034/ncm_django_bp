@@ -8,4 +8,5 @@ urlpatterns = [
     path("searchInfo/", v.searchInfo, name='searchInfo'),
     path("naverCrawling/", v.naverCafeInfo, name='naverCafeInfo'),
     path("naverSCrawling/", v.naverCafeSearch, name='naverCafeSearch'),
+    path("postWrite/", v.postWrite, name='postWrite'),
 ]
