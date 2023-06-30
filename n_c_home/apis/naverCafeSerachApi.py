@@ -99,7 +99,7 @@ def naverCafeSearchCrawling(NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COM
     final_hrefs = []
 
     if len(page_nums) > 1:
-        for i in page_nums[:-1]:
+        for i in range(1, 3):
             if i != 1: 
                 browser.find_element(By.LINK_TEXT, f"{i}").click()
 

@@ -104,7 +104,7 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
     final_hrefs = []
 
     if len(page_nums) > 1:
-        for i in page_nums[:-1]:
+        for i in range(1, 3):
             time.sleep(1.5)
             browser.find_element(By.LINK_TEXT, f"{i}").click()
 
