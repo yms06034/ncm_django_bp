@@ -63,8 +63,11 @@ def naverCafeSearchCrawling(NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COM
     input_pw.send_keys("\n")
 
     # Not needed when it's headless
-    # no_save_btn = find_id('new.dontsave')
-    # no_save_btn.click()
+    try:
+        no_save_btn = find_id('new.dontsave')
+        no_save_btn.click()
+    except NoSuchElementException:
+        pass
 
     time.sleep(1)
     
