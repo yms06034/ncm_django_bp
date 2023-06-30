@@ -102,11 +102,11 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
         page_nums.append(i.text)
 
     final_hrefs = []
-
+    page_num = [1,2]
     if len(page_nums) > 1:
-        for i in range(1, 3):
-            time.sleep(1.5)
+        for i in page_num:
             browser.find_element(By.LINK_TEXT, f"{i}").click()
+            time.sleep(2)
 
             soup = BS(browser.page_source, "html.parser")
             soup = soup.find_all(class_='article-board m-tcol-c')[1]
@@ -130,7 +130,6 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
                 for hrf in post_hrefs_t:
                     parsed_url = urlparse(hrf)
                     query_params = parse_qs(parsed_url.query)
-                    print("query_params : ", query_params)
                     article_id = query_params['articleid'][0]
                     club_id = query_params['clubid'][0]
                     new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
@@ -153,9 +152,11 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
                     new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
 
                     final_hrefs.append(new_url)
+                    time.sleep(1.5)
                     
     final_hrefs = set(final_hrefs)
     final_hrefs = list(final_hrefs)
+    
 
 
     while len(final_hrefs) == 0:
@@ -186,7 +187,7 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
 
         final_hrefs = []
 
-        for i in page_nums[:-1]:
+        for i in page_num:
             browser.find_element(By.LINK_TEXT, f"{i}").click()
             time.sleep(.5)
 
@@ -221,7 +222,7 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
         time.sleep(1)
         browser.switch_to.frame("cafe_main")
         time.sleep(1)
-
+        print(p_href)
         try:
     #         nicksname = browser.find_element(By.CLASS_NAME, 'comment_inbox_name').text
             nickname = NICKNAME
