@@ -102,3 +102,8 @@ def naverCafeSearch(request):
         }
 
     return render(request, 'crawling.html', context=context)
+
+def naverCafePostIdinfo(request):
+    if request.method == 'POST':
+        naver_id = request.POST['p_naverid']
+        naver_pw = request.POST['p_naverpw']
