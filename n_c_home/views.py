@@ -12,6 +12,8 @@ import urllib.error
 from n_c_home.apis.naverCafeApi import naverCafeCrawling
 from n_c_home.apis.naverCafeSerachApi import naverCafeSearchCrawling
 
+from n_c_home.apis.Post.loginApi import *
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import text, intersect
@@ -103,7 +105,47 @@ def naverCafeSearch(request):
 
     return render(request, 'crawling.html', context=context)
 
+
 def naverCafePostIdinfo(request):
-    if request.method == 'POST':
-        naver_id = request.POST['p_naverid']
-        naver_pw = request.POST['p_naverpw']
+    try:
+        if request.method == 'POST':
+            naver_id = request.POST['p_naverid']
+            naver_pw = request.POST['p_naverpw']
+            
+            browser =  naverCafePostStart()
+            naverLogin(naver_id, naver_pw, browser)
+            cafe_hrefs, cafe_name = checkSubscriptionCafe(browser)
+            
+            context = {
+                'cafe_hrefs' : cafe_hrefs,
+                'cafe_name' : cafe_name,
+                'cafe_zip': zip(cafe_hrefs, cafe_name),
+                'cafe_range' : range(0, len(cafe_hrefs)),
+                'id' : naver_id,
+                'pw' : naver_pw
+            }
+            
+            return browser
+    except Exception as ex:
+        ex = ex
+        
+    return render(request, 'postwrite1.html' ,context=context)
+        
+
+def CafeCategoryGetP(request, browser):
+    try:
+        if request.method == 'POST':
+            cafe_url =  request.POST.get('select_box')
+            
+            final_hrefs_true, cafe_name_true = CafeCategoryGet(browser, cafe_url)
+            
+            context = {
+                'final_hrefs_true' : final_hrefs_true,
+                'cafe_name_true' : cafe_name_true,
+                'category_zip' : zip(final_hrefs_true, cafe_name_true)
+            }
+            
+    except Exception as ex:
+        ex = ex
+        
+    return render(request, 'postwrite2.html', context=context)

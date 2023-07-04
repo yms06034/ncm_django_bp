@@ -9,4 +9,6 @@ urlpatterns = [
     path("naverCrawling/", v.naverCafeInfo, name='naverCafeInfo'),
     path("naverSCrawling/", v.naverCafeSearch, name='naverCafeSearch'),
     path("postWrite/", v.postWrite, name='postWrite'),
+    path("postWrite1/", v.naverCafePostIdinfo, name='naverCafePostIdinfo'),
+    path("postWrite2/", v.CafeCategoryGetP, name='CafeCategoryGetP'),
 ]
