@@ -207,9 +207,11 @@ def naverCafeSearchCrawling(NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COM
         
     browser.close()
     
-    dt = datetime.now().strftime("%Y-%m-%d")
-    
-    df = pd.DataFrame({'댓글 URL' : cmt_urls})
-    df.to_excel(f'{CAFENAME}_{dt}_2.xlsx', index=False)
-    
+    dt = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    if not cmt_urls:
+        pass
+    else:
+        df = pd.DataFrame({'댓글 URL' : cmt_urls})
+        df.to_excel(f'{CAFENAME}_{dt}_1.xlsx', index=False)
+        
     return cmt_urls
