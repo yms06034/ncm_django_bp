@@ -9,12 +9,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from bs4 import BeautifulSoup as BS
 from urllib.parse import urlparse, parse_qs
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
 import time
 import requests
 import pyperclip
+
 
 def naverCafeSearchCrawling(NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COMMENTS):
     def css_finds(css_selector):
@@ -154,12 +156,14 @@ def naverCafeSearchCrawling(NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COM
                 final_hrefs.append(new_url)
                 
     cmtnicks = []
-
+    cmt_urls = []
+    
     for p_href in final_hrefs:
         browser.get(p_href)
         time.sleep(1)
         browser.switch_to.frame("cafe_main")
         time.sleep(1)
+        cmtnicks.clear()
 
         try:
     #         nicksname = browser.find_element(By.CLASS_NAME, 'comment_inbox_name').text
@@ -172,10 +176,8 @@ def naverCafeSearchCrawling(NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COM
                     cmtnicks.append(cmtnick)
 
                 if nickname in cmtnicks:
-                    # 내 닉네임으로 댓글이 있는 경우, 다음 페이지로 넘어감
                     continue
                 else:
-                    # 내 닉네임으로 댓글이 없는 경우, 댓글 작성
                     time.sleep(1)
                     text_area = browser.find_element(By.CLASS_NAME, 'comment_inbox_text')
                     text_area.click()
@@ -184,8 +186,10 @@ def naverCafeSearchCrawling(NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COM
                     text_area.send_keys(Keys.CONTROL, "v")
                     register_btn = browser.find_element(By.CLASS_NAME, 'btn_register')
                     register_btn.click()
+                    
+                    cmt_urls.append(browser.current_url)
+                    time.sleep(2)
             else:
-                # 댓글 작성
                 time.sleep(1)
                 text_area = browser.find_element(By.CLASS_NAME, 'comment_inbox_text')
                 text_area.click()
@@ -194,12 +198,18 @@ def naverCafeSearchCrawling(NAVER_ID, NAVER_PW, CAFENAME, NICKNAME, keyword, COM
                 text_area.send_keys(Keys.CONTROL, "v")
                 register_btn = browser.find_element(By.CLASS_NAME, 'btn_register')
                 register_btn.click()
+                
+                cmt_urls.append(browser.current_url)
+                time.sleep(2)
 
         except NoSuchElementException:
             pass
-
-        cmtnicks.clear()
         
     browser.close()
     
-    return final_hrefs
+    dt = datetime.now().strftime("%Y-%m-%d")
+    
+    df = pd.DataFrame({'댓글 URL' : cmt_urls})
+    df.to_excel(f'{CAFENAME}_{dt}_2.xlsx', index=False)
+    
+    return cmt_urls

@@ -11,6 +11,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from bs4 import BeautifulSoup as BS
 from urllib.parse import urlparse, parse_qs
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
@@ -36,6 +37,9 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
 
     def find_id(id_x):
         return browser.find_element(By.ID, id_x)
+
+    def find_className(clsN):
+        return browser.find_element(By.CLASS_NAME, clsN)
 
     options = webdriver.ChromeOptions()
     options.add_argument('--no-sandbox')
@@ -105,8 +109,13 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
         page_nums.append(i.text)
 
     final_hrefs = []
-    page_num = [1,2]
-    if len(page_nums) > 1:
+
+    page_num = [1,2] # 게시글 최대 100개만 작성
+    prev_nums = find_className('prev-next').text
+    prev_nums = prev_nums.split('\n')[1].split(' ')
+
+
+    if len(prev_nums) > 1:
         for i in page_num:
             browser.find_element(By.LINK_TEXT, f"{i}").click()
             time.sleep(2)
@@ -121,11 +130,11 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
 
             # def 3
             post_hrefs, post_hrefs_t = [], []
-            
+
             if not keyword:
                 for href in a_hrefs:
                     post_hrefs.append(href["href"])
-                    
+
                 for ph in post_hrefs:
                     if "ArticleRead" in ph:
                         post_hrefs_t.append(ph)
@@ -142,7 +151,7 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
                 for href in a_hrefs:
                     if keyword in href.text:
                         post_hrefs.append(href["href"])
-                        
+
                 for ph in post_hrefs:
                     if "ArticleRead" in ph:
                         post_hrefs_t.append(ph)
@@ -157,29 +166,7 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
                     final_hrefs.append(new_url)
                     time.sleep(1.5)
                     
-    final_hrefs = set(final_hrefs)
-    final_hrefs = list(final_hrefs)
-    
-
-
-    while len(final_hrefs) == 0:
-        # If final_hrefs is an empty list, continue to rotate repeatedly.
-        time.sleep(1)
-        browser.refresh()
-
-        boardName = browser.find_element(By.LINK_TEXT, f'{BORADTITLE}')
-
-        boardName.click()
-
-        time.sleep(2)
-
-        browser.switch_to.frame("cafe_main")
-
-        browser.find_element(By.XPATH, '//*[@id="listSizeSelectDiv"]/a').click()
-        browser.find_element(By.XPATH, '//*[@id="listSizeSelectDiv"]/ul/li[7]/a').click()
-
-        time.sleep(1)
-
+    else:
         soup = BS(browser.page_source, "html.parser")
         soup = soup.find_all(class_='article-board m-tcol-c')[1]
 
@@ -188,12 +175,99 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
 
         a_hrefs = soup.find_all("a")
 
-        final_hrefs = []
+        # def 3
+        post_hrefs, post_hrefs_t = [], []
 
-        for i in page_num:
-            browser.find_element(By.LINK_TEXT, f"{i}").click()
-            time.sleep(.5)
+        if not keyword:
+            for href in a_hrefs:
+                post_hrefs.append(href["href"])
 
+            for ph in post_hrefs:
+                if "ArticleRead" in ph:
+                    post_hrefs_t.append(ph)
+
+            for hrf in post_hrefs_t:
+                parsed_url = urlparse(hrf)
+                query_params = parse_qs(parsed_url.query)
+                article_id = query_params['articleid'][0]
+                club_id = query_params['clubid'][0]
+                new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
+
+                final_hrefs.append(new_url)
+        else:
+            for href in a_hrefs:
+                if keyword in href.text:
+                    post_hrefs.append(href["href"])
+
+            for ph in post_hrefs:
+                if "ArticleRead" in ph:
+                    post_hrefs_t.append(ph)
+
+            for hrf in post_hrefs_t:
+                parsed_url = urlparse(hrf)
+                query_params = parse_qs(parsed_url.query)
+                article_id = query_params['articleid'][0]
+                club_id = query_params['clubid'][0]
+                new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
+
+                final_hrefs.append(new_url)
+                time.sleep(1.5)
+
+    final_hrefs = list(set(final_hrefs))
+
+    while len(final_hrefs) == 0:
+        if len(prev_nums) > 1:
+            for i in page_num:
+                browser.find_element(By.LINK_TEXT, f"{i}").click()
+                time.sleep(2)
+
+                soup = BS(browser.page_source, "html.parser")
+                soup = soup.find_all(class_='article-board m-tcol-c')[1]
+
+                datas = soup.find_all(class_='td_article')
+                dates = soup.find_all(class_='td_date')
+
+                a_hrefs = soup.find_all("a")
+
+                # def 3
+                post_hrefs, post_hrefs_t = [], []
+
+                if not keyword:
+                    for href in a_hrefs:
+                        post_hrefs.append(href["href"])
+
+                    for ph in post_hrefs:
+                        if "ArticleRead" in ph:
+                            post_hrefs_t.append(ph)
+
+                    for hrf in post_hrefs_t:
+                        parsed_url = urlparse(hrf)
+                        query_params = parse_qs(parsed_url.query)
+                        article_id = query_params['articleid'][0]
+                        club_id = query_params['clubid'][0]
+                        new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
+
+                        final_hrefs.append(new_url)
+                else:
+                    for href in a_hrefs:
+                        if keyword in href.text:
+                            post_hrefs.append(href["href"])
+
+                    for ph in post_hrefs:
+                        if "ArticleRead" in ph:
+                            post_hrefs_t.append(ph)
+
+                    for hrf in post_hrefs_t:
+                        parsed_url = urlparse(hrf)
+                        query_params = parse_qs(parsed_url.query)
+                        article_id = query_params['articleid'][0]
+                        club_id = query_params['clubid'][0]
+                        new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
+
+                        final_hrefs.append(new_url)
+                        time.sleep(1.5)
+
+        else:
             soup = BS(browser.page_source, "html.parser")
             soup = soup.find_all(class_='article-board m-tcol-c')[1]
 
@@ -203,29 +277,54 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
             a_hrefs = soup.find_all("a")
 
             # def 3
-            post_hrefs = []
-            for href in a_hrefs:
-                if keyword in href.text:
+            post_hrefs, post_hrefs_t = [], []
+
+            if not keyword:
+                for href in a_hrefs:
                     post_hrefs.append(href["href"])
 
-            for href in post_hrefs:
-                parsed_url = urlparse(href)
-                query_params = parse_qs(parsed_url.query)
-                article_id = query_params['articleid'][0]
-                club_id = query_params['clubid'][0]
-                new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
+                for ph in post_hrefs:
+                    if "ArticleRead" in ph:
+                        post_hrefs_t.append(ph)
 
-                final_hrefs.append(new_url)
+                for hrf in post_hrefs_t:
+                    parsed_url = urlparse(hrf)
+                    query_params = parse_qs(parsed_url.query)
+                    article_id = query_params['articleid'][0]
+                    club_id = query_params['clubid'][0]
+                    new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
+
+                    final_hrefs.append(new_url)
+            else:
+                for href in a_hrefs:
+                    if keyword in href.text:
+                        post_hrefs.append(href["href"])
+
+                for ph in post_hrefs:
+                    if "ArticleRead" in ph:
+                        post_hrefs_t.append(ph)
+
+                for hrf in post_hrefs_t:
+                    parsed_url = urlparse(hrf)
+                    query_params = parse_qs(parsed_url.query)
+                    article_id = query_params['articleid'][0]
+                    club_id = query_params['clubid'][0]
+                    new_url = f"https://cafe.naver.com/{CAFENAME}?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D{club_id}%2526page%3D1%2526boardtype%3DL%2526articleid%3D{article_id}%2526referrerAllArticles%3Dtrue"
+
+                    final_hrefs.append(new_url)
+                    time.sleep(1.5)
 
 
     cmtnicks = []
+    cmt_urls = []
 
     for p_href in final_hrefs:
         browser.get(p_href)
         time.sleep(1)
         browser.switch_to.frame("cafe_main")
         time.sleep(1)
-        print(p_href)
+        cmtnicks.clear()
+
         try:
     #         nicksname = browser.find_element(By.CLASS_NAME, 'comment_inbox_name').text
             nickname = NICKNAME
@@ -235,7 +334,8 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
                 for cmtNick in cmtNicks:
                     cmtnick = cmtNick.text
                     cmtnicks.append(cmtnick)
-
+                    print('nickname :', cmtnicks)
+                    
                 if nickname in cmtnicks:
                     continue
                 else:
@@ -247,6 +347,10 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
                     text_area.send_keys(Keys.CONTROL, "v")
                     register_btn = browser.find_element(By.CLASS_NAME, 'btn_register')
                     register_btn.click()
+
+                    cmt_urls.append(browser.current_url)
+                    time.sleep(2)
+                    
             else:
                 # Write Comment
                 time.sleep(1)
@@ -258,12 +362,19 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
                 register_btn = browser.find_element(By.CLASS_NAME, 'btn_register')
                 register_btn.click()
 
+                cmt_urls.append(browser.current_url)
+                time.sleep(2)
+
         except NoSuchElementException:
             pass
-
-        cmtnicks.clear()
+        
 
     time.sleep(3)
     browser.close()
     
-    return final_hrefs
+    dt = datetime.now().strftime("%Y-%m-%d")
+    
+    df = pd.DataFrame({'댓글 URL' : cmt_urls})
+    df.to_excel(f'{CAFENAME}_{dt}_1.xlsx', index=False)
+    
+    return cmt_urls
