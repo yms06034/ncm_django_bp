@@ -114,7 +114,7 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
 
     final_hrefs = []
 
-    page_num = [1,2] # 게시글 최대 100개만 작성
+    page_num = [1,2,3,4,5,6] # 게시글 최대 100개만 작성
     prev_nums = find_className('prev-next').text
     prev_nums = prev_nums.split('\n')[1].split(' ')
 
