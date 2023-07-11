@@ -49,8 +49,12 @@ def naverCafeCrawling(NAVER_ID, NAVER_PW, CAFENAME, BORADTITLE, NICKNAME, keywor
     options.add_argument("--window-size=1080,800")
     options.add_argument('incognito')
 
-    service = Service(ChromeDriverManager().install())
-    browser = webdriver.Chrome(service=service, options=options)    
+    # service = Service(ChromeDriverManager().install())
+    # browser = webdriver.Chrome(service=service, options=options)    
+    chrome_service = Service('chromedriver')
+    chrome_service = Service(executable_path="chromedriver.exe")
+    browser = webdriver.Chrome(service = chrome_service, options=options)
+    browser.implicitly_wait(3)
 
     # def 1
     # Crawling Start
